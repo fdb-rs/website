@@ -1,0 +1,40 @@
+name: push-website
+
+env:
+  image_tag: 25f5ba433591
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  job-on-push:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      -
+        name: Pull ghcr.io/fdb-rs/website:${{ env.image_tag }} container
+        run: |
+          sudo podman pull ghcr.io/fdb-rs/website:${{ env.image_tag }}
+      -
+        name: Start container
+        run: |
+          sudo podman run --name website --volume ${GITHUB_WORKSPACE}:/home/runner/website --rm ghcr.io/fdb-rs/website:${{ env.image_tag }} &
+      -
+        name: Build website
+        run: |
+          sudo podman exec --user runner:docker --workdir /home/runner/website --tty website zola build
+      -
+        name: Deploy website
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: fdb-rs/fdb-rs.github.io
+          publish_branch: main
+          publish_dir: ./public
+
+      -
+        name: Stop container
+        run: |
+          sudo podman stop website
