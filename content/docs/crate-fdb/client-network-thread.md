@@ -87,9 +87,9 @@ FoundationDB database specified by the cluster file.
 let fdb_database = fdb::open_database(fdb_cluster_file)?;
 ```
 
-[`open_database`](https://docs.rs/fdb/0.2.0/fdb/fn.open_database.html)
+[`open_database`](https://docs.rs/fdb/0.2.1/fdb/fn.open_database.html)
 function returns a value of
-[`FdbResult`](https://docs.rs/fdb/0.2.0/fdb/error/type.FdbResult.html)
+[`FdbResult`](https://docs.rs/fdb/0.2.1/fdb/error/type.FdbResult.html)
 type.
 
 `FdbResult` type provides a common error handling abstraction for all
@@ -98,7 +98,7 @@ APIs in the crate. In addition it also signals
 that might have occurred in the C API.
 
 In the above code `fdb_database` is a value of
-[`FdbDatabase`](https://docs.rs/fdb/0.2.0/fdb/database/struct.FdbDatabase.html)
+[`FdbDatabase`](https://docs.rs/fdb/0.2.1/fdb/database/struct.FdbDatabase.html)
 type and points to the FoundationDB database specified by the cluster
 file. 
 
