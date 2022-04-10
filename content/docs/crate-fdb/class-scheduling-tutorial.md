@@ -488,6 +488,8 @@ its data by key and therefore has efficient range-read capability, we
 can retrieve all of the classes in a single database call. We find
 this range of keys with
 [`get_range()`](https://docs.rs/fdb/0.2.2/fdb/transaction/trait.ReadTransaction.html#tymethod.get_range)
+method, which is called from
+[`into_stream()`](https://docs.rs/fdb/0.2.2/fdb/range/struct.Range.html#method.into_stream)
 method.
 
 ```rust
@@ -526,35 +528,17 @@ impl ClassPrefix {
 
         class_range
     }
-
-    fn get_range_selector(&self) -> (KeySelector, KeySelector) {
-        let key_range = self.get_range();
-
-        let begin_key_selector = KeySelector::first_greater_or_equal(
-            key_range.begin().clone()
-        );
-        let end_key_selector = KeySelector::first_greater_or_equal(
-            key_range.end().clone()
-        );
-
-        (begin_key_selector, end_key_selector)
-    }
 }
 
 async fn available_classes(tr: &FdbTransaction) -> FdbResult<Vec<Class>> {
     // ("class", ...)
-    let (begin_key_selector, end_key_selector) =
-        ClassPrefix::new().get_range_selector();
-
-    let mut range_stream = tr.get_range(
-        begin_key_selector,
-        end_key_selector,
-        RangeOptions::default(),
-    );
+    let mut class_range_stream = ClassPrefix::new()
+        .get_range()
+        .into_stream(tr, RangeOptions::default());
 
     let mut class_names = Vec::new();
 
-    while let Some(x) = range_stream.next().await {
+    while let Some(x) = class_range_stream.next().await {
         let kv = x?;
         let class_key = TryInto::<ClassKey>::try_into(
             kv.get_key().clone()
@@ -572,12 +556,11 @@ method returns a
 [`Range`](https://docs.rs/fdb/0.2.2/fdb/range/struct.Range.html)
 representing all the key-value pairs starting with the specified
 tuple. In this case we want all classes, so we call `Tuple::range()`
-with `("class",)`. Once we have the value of `Range` type, we get the
-[`KeySelector`](https://docs.rs/fdb/0.2.2/fdb/struct.KeySelector.html)
-associated with the `Range`. The `KeySelector` can then be used to
-call `get_range` method which returns a Tokio
+with `("class",)`. Once we have the value of `Range` type, we can use
+[`Range::into_stream()`](https://docs.rs/fdb/0.2.2/fdb/range/struct.Range.html#method.into_stream)
+to obtain a Tokio
 [Stream](https://docs.rs/tokio-stream/0.1.8/tokio_stream/trait.StreamExt.html)
-of the key-values specified by `KeySelector`. To extract the class
+of the key-values contained within the range. To extract the class
 name, we unpack the key using
 [`Tuple::fromBytes()`](https://docs.rs/fdb/0.2.2/fdb/tuple/struct.Tuple.html#method.from_bytes)
 and take its second part. (The first part is the prefix `"class"`).
@@ -646,21 +629,16 @@ all classes initially have 100 seats), but the `available_classes`,
 `signup`, and `dropout` functions are going to have to change. Let us
 start with `available_casses`.
 
-```rust,hl_lines=21-23 25
+```rust,hl_lines=16-18 20
 async fn available_classes(tr: &FdbTransaction) -> FdbResult<Vec<Class>> {
     // ("class", ...)
-    let (begin_key_selector, end_key_selector) =
-        ClassPrefix::new().get_range_selector();
-
-    let mut range_stream = tr.get_range(
-        begin_key_selector,
-        end_key_selector,
-        RangeOptions::default(),
-    );
+    let mut class_range_stream = ClassPrefix::new()
+        .get_range()
+        .into_stream(tr, RangeOptions::default());
 
     let mut class_names = Vec::new();
 
-    while let Some(x) = range_stream.next().await {
+    while let Some(x) = class_range_stream.next().await {
         let kv = x?;
 
         let class_key = TryInto::<ClassKey>::try_into(
