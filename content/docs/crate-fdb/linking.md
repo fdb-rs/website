@@ -41,7 +41,7 @@ default = ["fdb/fdb-X_Y"]
 
 If you have installed `libfdb_c.so` in a non-standard location, you
 can use the environment variable
-[`RUSTC_LINK_SEARCH_FDB_CLIENT_LIB`](https://github.com/fdb-rs/fdb/blob/fdb-0.2.1/fdb-sys/build.rs#L23-L25)
+[`RUSTC_LINK_SEARCH_FDB_CLIENT_LIB`](https://github.com/fdb-rs/fdb/blob/fdb-0.2.2/fdb-sys/build.rs#L23-L25)
 to specify the location of the C library.
 
 **Note** While it is required for your application to link to a
