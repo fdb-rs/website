@@ -5,7 +5,7 @@ use fdb::error::{FdbError, FdbResult};
 use fdb::range::{Range, RangeOptions};
 use fdb::transaction::{FdbTransaction, ReadTransaction, Transaction};
 use fdb::tuple::Tuple;
-use fdb::{Key, KeySelector, KeyValue, Value};
+use fdb::{Key, KeyValue, Value};
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
@@ -224,15 +224,6 @@ impl ClassPrefix {
 
         class_range
     }
-
-    fn get_range_selector(&self) -> (KeySelector, KeySelector) {
-        let key_range = self.get_range();
-
-        let begin_key_selector = KeySelector::first_greater_or_equal(key_range.begin().clone());
-        let end_key_selector = KeySelector::first_greater_or_equal(key_range.end().clone());
-
-        (begin_key_selector, end_key_selector)
-    }
 }
 
 // ("attends")
@@ -287,15 +278,6 @@ impl AttendsStudentPrefix {
         .range(Bytes::new());
 
         attends_student_range
-    }
-
-    fn get_range_selector(&self) -> (KeySelector, KeySelector) {
-        let key_range = self.get_range();
-
-        let begin_key_selector = KeySelector::first_greater_or_equal(key_range.begin().clone());
-        let end_key_selector = KeySelector::first_greater_or_equal(key_range.end().clone());
-
-        (begin_key_selector, end_key_selector)
     }
 }
 
@@ -365,17 +347,13 @@ async fn init(db: &FdbDatabase) -> FdbResult<()> {
 
 // async fn available_classes(tr: &FdbTransaction) -> FdbResult<Vec<Class>> {
 //     // ("class", ...)
-//     let (begin_key_selector, end_key_selector) = ClassPrefix::new().get_range_selector();
-
-//     let mut range_stream = tr.get_range(
-//         begin_key_selector,
-//         end_key_selector,
-//         RangeOptions::default(),
-//     );
+//     let mut class_range_stream = ClassPrefix::new()
+//         .get_range()
+//         .into_stream(tr, RangeOptions::default());
 
 //     let mut class_names = Vec::new();
 
-//     while let Some(x) = range_stream.next().await {
+//     while let Some(x) = class_range_stream.next().await {
 //         let kv = x?;
 
 //         let class_key = TryInto::<ClassKey>::try_into(kv.get_key().clone())?;
@@ -388,17 +366,13 @@ async fn init(db: &FdbDatabase) -> FdbResult<()> {
 
 async fn available_classes(tr: &FdbTransaction) -> FdbResult<Vec<Class>> {
     // ("class", ...)
-    let (begin_key_selector, end_key_selector) = ClassPrefix::new().get_range_selector();
-
-    let mut range_stream = tr.get_range(
-        begin_key_selector,
-        end_key_selector,
-        RangeOptions::default(),
-    );
+    let mut class_range_stream = ClassPrefix::new()
+        .get_range()
+        .into_stream(tr, RangeOptions::default());
 
     let mut class_names = Vec::new();
 
-    while let Some(x) = range_stream.next().await {
+    while let Some(x) = class_range_stream.next().await {
         let kv = x?;
 
         let class_key = TryInto::<ClassKey>::try_into(kv.get_key().clone())?;
@@ -465,14 +439,9 @@ async fn get_attends_student_keyvalue(
     student: Student,
 ) -> FdbResult<Vec<KeyValue>> {
     // ("attends", student, ...)
-    let (begin_key_selector, end_key_selector) =
-        AttendsStudentPrefix::new(student).get_range_selector();
-
-    let mut range_stream = tr.get_range(
-        begin_key_selector,
-        end_key_selector,
-        RangeOptions::default(),
-    );
+    let mut range_stream = AttendsStudentPrefix::new(student)
+        .get_range()
+        .into_stream(tr, RangeOptions::default());
 
     let mut kvs = Vec::new();
 
