@@ -44,7 +44,8 @@ FoundationDB documentation.
   You can ignore the
   [directories](https://apple.github.io/foundationdb/developer-guide.html#directories)
   section. We do not support directory layer in our API. Instead we
-  will be supporting upcoming features in FoundationDB 7.0 that
+  support FoundationDB 7.1
+  [Tenants](https://apple.github.io/foundationdb/tenants.html) that
   natively provides similar feature.
   
   When you read the section on [transaction retry
