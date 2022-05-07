@@ -53,12 +53,12 @@ to use. This can be done as follows.
 
 ```rust
 unsafe {
-    fdb::select_api_version(630);
+    fdb::select_api_version(710);
     // ...
 }
 ```
 
-Here we are selecting API version `630`. In Rust `unsafe` keyword is
+Here we are selecting API version `710`. In Rust `unsafe` keyword is
 used to indicate to the user of API that there invariants that cannot
 be checked by the compiler.
 
@@ -73,7 +73,7 @@ thread as follows.
 
 ```rust
 unsafe {
-    fdb::select_api_version(630);
+    fdb::select_api_version(710);
     fdb::start_network();
 }
 ```
