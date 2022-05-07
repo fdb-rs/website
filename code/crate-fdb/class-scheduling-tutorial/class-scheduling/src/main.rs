@@ -354,9 +354,9 @@ async fn init(db: &FdbDatabase) -> FdbResult<()> {
 //     let mut class_names = Vec::new();
 
 //     while let Some(x) = class_range_stream.next().await {
-//         let kv = x?;
+//         let key = x?.into_key();
 
-//         let class_key = TryInto::<ClassKey>::try_into(kv.get_key().clone())?;
+//         let class_key = TryInto::<ClassKey>::try_into(key)?;
 
 //         class_names.push(class_key.into());
 //     }
@@ -373,11 +373,11 @@ async fn available_classes(tr: &FdbTransaction) -> FdbResult<Vec<Class>> {
     let mut class_names = Vec::new();
 
     while let Some(x) = class_range_stream.next().await {
-        let kv = x?;
+        let (key, value) = x?.into_parts();
 
-        let class_key = TryInto::<ClassKey>::try_into(kv.get_key().clone())?;
+        let class_key = TryInto::<ClassKey>::try_into(key)?;
 
-        let seats_available = ClassValue::from(kv.get_value().clone()).get_val();
+        let seats_available = ClassValue::from(value).get_val();
 
         if seats_available > 0 {
             class_names.push(class_key.into());

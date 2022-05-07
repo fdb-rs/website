@@ -6,11 +6,11 @@ authors = ["fdb-rs Developers"]
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["fdb/fdb-6_3"]
+default = ["fdb/fdb-7_1"]
 
 [dependencies]
 bytes = "1"
-fdb = "0.2"
+fdb = "0.3"
 rand = "0.8"
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1"
