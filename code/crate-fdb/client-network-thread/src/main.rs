@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let fdb_cluster_file = env::var("FDB_CLUSTER_FILE").expect("FDB_CLUSTER_FILE not defined!");
 
     unsafe {
-        fdb::select_api_version(630);
+        fdb::select_api_version(710);
         fdb::start_network();
     }
 

@@ -6,8 +6,8 @@ authors = ["fdb-rs Developers"]
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["fdb/fdb-6_3"]
+default = ["fdb/fdb-7_1"]
 
 [dependencies]
-fdb = "0.2"
+fdb = "0.3"
 tokio = { version = "1", features = ["full"] }
