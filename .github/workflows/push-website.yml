@@ -1,7 +1,7 @@
 name: push-website
 
 env:
-  image_tag: 25f5ba433591
+  image_tag: 946a6a37ed67
 
 on:
   push:
