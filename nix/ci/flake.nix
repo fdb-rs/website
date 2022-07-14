@@ -1,7 +1,7 @@
 {
   description = "fdb-rs website flake";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "nixpkgs/nixos-22.05";
 
   outputs = { self, nixpkgs }: {
     website =
@@ -71,6 +71,8 @@
 
           mkdir -p /home/runner/website
           chown -R runner:docker /home/runner
+
+          mkdir -p /nix/var/nix/daemon-socket
 
           systemctl enable nix-daemon.socket
         '';
